@@ -18,6 +18,11 @@
   font-family: var(--font-mono);
 }
 
+.container {
+  display: flex;
+  
+}
+
 .description a {
   display: flex;
   justify-content: center;

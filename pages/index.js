@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import Minefield from '../components/Minefield'
+import BombCountInput from '../components/BombCountInput'
 
 /* --------------------------- Generate minefield --------------------------- */
 
@@ -37,12 +38,31 @@ export default function Home() {
   const [minefield, setMinefield] = useState(addBombs(generate2DArray(10, 10), 13))
   const [gameEnd, setGameEnd] = useState(false)
   const [resetGame, setResetGame] = useState(false)
+  const [bombCount, setBombCount] = useState(10)
+  const [endState, setEndState] = useState(null)
+
+  useEffect(() => {
+    if (endState) {
+      console.log(endState)
+    }
+  }, [endState])
+
+  useEffect(() => {
+    if (hitMine) {
+      setGameEnd(true)
+      setEndState("You hit a mine and lost")
+    }
+  }, [hitMine])
+  
+  const handleBombCountChange = (newBombCount) => {
+    setBombCount(newBombCount);
+    setResetGame(true);
+  };
 
   function checkSquares(cords) {
     const { rowIndex, colIndex } = cords
   
     if (minefield[rowIndex][colIndex] === 1) {
-      console.log('You hit a mine!')
       setHitMine(true)
       return "💣"
     }
@@ -76,13 +96,13 @@ export default function Home() {
 
   function endGame() {
     setGameEnd(true)
-    //! ADD WINNING GAME LOGIC
+    //! ADD WINNING & LOSING GAME LOGIC
   }
 
   function resetButton() {
     setGameEnd(false)
     setResetGame(true)
-    setMinefield(addBombs(generate2DArray(10, 10), 13))
+    setMinefield(addBombs(generate2DArray(10, 10), bombCount))
     
     setTimeout(() => {
       setResetGame(false);
@@ -101,11 +121,12 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <h1>Minesweeper!</h1>
+        <BombCountInput onBombCountChange={handleBombCountChange} />
         <div className={styles.container}>
-        <Minefield { ...{ minefield, checkSquares, gameEnd, resetGame }} />
-       </div>
-       <button onClick={endGame}>End game</button>
-       <button onClick={resetButton}>Reset game</button>
+          <Minefield {...{ minefield, checkSquares, gameEnd, resetGame, bombCount }} />
+        </div>
+        <button onClick={endGame}>End game</button>
+        <button onClick={resetButton}>Reset game</button>
       </main>
     </>
   )
